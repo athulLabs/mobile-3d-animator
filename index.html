@@ -1,145 +1,106 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Animated Studio 3D</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>3D Animator</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     body {
       margin: 0;
-      background: #070b16;
+      padding: 12px;
+      background: #080b16;
       color: white;
       font-family: Arial, sans-serif;
     }
 
     .app {
-      width: 100%;
       max-width: 600px;
       margin: auto;
-      padding: 12px;
     }
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0 14px;
-    }
-
-    h1, h2, p {
-      margin: 0;
+    .card {
+      margin-bottom: 12px;
+      padding: 14px;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      background: #111827;
     }
 
     h1 {
       font-size: 19px;
+      margin: 0;
     }
 
     h2 {
       font-size: 15px;
-      margin-bottom: 14px;
     }
 
-    .muted {
-      margin-top: 4px;
-      color: #94a3b8;
-      font-size: 11px;
-    }
-
-    .card {
-      margin-bottom: 13px;
-      padding: 14px;
-      border: 1px solid #2b3854;
-      border-radius: 17px;
-      background: #111827;
+    p {
+      color: #a5b4fc;
+      font-size: 12px;
     }
 
     #scene {
-      width: 100%;
-      height: 390px;
+      height: 380px;
       overflow: hidden;
-      border-radius: 16px;
-      background: linear-gradient(#34415f, #111827);
+      border-radius: 14px;
+      background: #263451;
       touch-action: none;
     }
 
     button {
+      margin: 4px 2px;
+      padding: 11px 14px;
       border: 0;
       border-radius: 9px;
-      padding: 10px 13px;
       color: white;
-      background: #293650;
-      font-size: 12px;
+      background: #334155;
     }
 
     button.primary {
       background: #7044d8;
     }
 
-    .row {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .row button {
-      flex: 1;
-    }
-
-    label {
-      display: block;
-      margin: 15px 0 6px;
-      color: #cbd5e1;
-      font-size: 12px;
-    }
-
-    input[type="range"] {
+    input {
       width: 100%;
       accent-color: #8b5cf6;
     }
 
-    #status {
-      margin-top: 12px;
-      color: #a78bfa;
-      font-size: 11px;
+    label {
+      display: block;
+      margin-top: 14px;
+      color: #cbd5e1;
+      font-size: 12px;
+    }
+
+    #message {
       text-align: center;
+      color: #a78bfa;
     }
   </style>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
 </head>
 
 <body>
   <main class="app">
-    <header>
-      <div>
-        <h1>Animated Studio</h1>
-        <p class="muted">Real mobile 3D animator</p>
-      </div>
-      <button class="primary" onclick="saveProject()">Save</button>
-    </header>
-
     <section class="card">
-      <div id="scene"></div>
-
-      <div class="row">
-        <button onclick="capturePose()">Capture Pose</button>
-        <button class="primary" onclick="playAnimation()">Play Preview</button>
-      </div>
-
-      <p id="status">Drag the character to rotate</p>
+      <h1>Animated Studio</h1>
+      <p>Real 3D mobile animator</p>
     </section>
 
     <section class="card">
-      <h2>Animation Timeline</h2>
-
-      <div class="row">
-        <button onclick="setStatus('Idle selected')">Idle</button>
-        <button onclick="setStatus('Walk selected')">Walk</button>
-        <button onclick="setStatus('Wave selected')">Wave</button>
-      </div>
+      <div id="scene"></div>
+      <button onclick="capturePose()">Capture Pose</button>
+      <button class="primary" onclick="playAnimation()">Play Preview</button>
+      <p id="message">Drag the model to rotate</p>
     </section>
 
     <section class="card">
@@ -150,247 +111,179 @@
              oninput="updateCharacter()">
 
       <label>Muscularity</label>
-      <input id="muscle" type="range" min="70" max="150" value="100"
+      <input id="muscle" type="range" min="70" max="140" value="100"
              oninput="updateCharacter()">
 
-      <label>Body Rotation</label>
+      <label>Rotation</label>
       <input id="rotation" type="range" min="-180" max="180" value="0"
              oninput="updateRotation()">
 
-      <div class="row">
-        <button onclick="saveProject()">Save Project</button>
-        <button onclick="loadProject()">Load Project</button>
-      </div>
+      <button onclick="saveProject()">Save Project</button>
+      <button onclick="loadProject()">Load Project</button>
     </section>
   </main>
 
   <script type="module">
-    import * as THREE from
-      "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
-
+    import * as THREE from "three";
     import { OrbitControls } from
-      "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+      "three/addons/controls/OrbitControls.js";
 
-    const sceneElement = document.getElementById("scene");
+    const container = document.getElementById("scene");
+    const message = document.getElementById("message");
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color("#26324e");
+    scene.background = new THREE.Color("#263451");
 
     const camera = new THREE.PerspectiveCamera(
       45,
-      sceneElement.clientWidth / sceneElement.clientHeight,
+      container.clientWidth / container.clientHeight,
       0.1,
       100
     );
 
-    camera.position.set(0, 2.2, 6);
+    camera.position.set(0, 1.5, 5);
 
-    const renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      alpha: true
-    });
-
-    renderer.setSize(
-      sceneElement.clientWidth,
-      sceneElement.clientHeight
-    );
-
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
-    sceneElement.appendChild(renderer.domElement);
+    container.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enablePan = false;
     controls.enableDamping = true;
-    controls.minDistance = 3;
-    controls.maxDistance = 9;
-    controls.target.set(0, 1.2, 0);
+    controls.target.set(0, 1, 0);
 
-    const ambientLight = new THREE.HemisphereLight(
-      "#ffffff",
-      "#27304a",
-      2
-    );
+    scene.add(new THREE.HemisphereLight("#ffffff", "#263451", 2));
 
-    scene.add(ambientLight);
-
-    const keyLight = new THREE.DirectionalLight("#ffffff", 3);
-    keyLight.position.set(4, 6, 5);
-    keyLight.castShadow = true;
-    scene.add(keyLight);
-
-    const floor = new THREE.Mesh(
-      new THREE.CircleGeometry(2.1, 64),
-      new THREE.MeshStandardMaterial({
-        color: "#101827",
-        roughness: 0.9
-      })
-    );
-
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.y = -1.15;
-    floor.receiveShadow = true;
-    scene.add(floor);
+    const light = new THREE.DirectionalLight("#ffffff", 3);
+    light.position.set(4, 6, 5);
+    light.castShadow = true;
+    scene.add(light);
 
     const character = new THREE.Group();
     scene.add(character);
 
-    const skinMaterial = new THREE.MeshStandardMaterial({
-      color: "#e6ae99",
-      roughness: 0.75
-    });
-
-    const clothesMaterial = new THREE.MeshStandardMaterial({
-      color: "#9b82d6",
-      roughness: 0.7
-    });
+    const skin = new THREE.MeshStandardMaterial({ color: "#e6ad98" });
+    const clothes = new THREE.MeshStandardMaterial({ color: "#9b82d6" });
 
     function capsule(radius, length, material) {
-      const geometry = new THREE.CapsuleGeometry(
-        radius,
-        length,
-        12,
-        24
+      const mesh = new THREE.Mesh(
+        new THREE.CapsuleGeometry(radius, length, 8, 20),
+        material
       );
-
-      const mesh = new THREE.Mesh(geometry, material);
       mesh.castShadow = true;
-      mesh.receiveShadow = true;
       return mesh;
     }
 
     const head = new THREE.Mesh(
-      new THREE.SphereGeometry(0.38, 32, 32),
-      skinMaterial
+      new THREE.SphereGeometry(0.38, 24, 24),
+      skin
     );
-
-    head.position.y = 1.75;
-    head.castShadow = true;
+    head.position.y = 1.8;
     character.add(head);
 
-    const torso = capsule(0.48, 0.75, clothesMaterial);
-    torso.position.y = 0.75;
-    character.add(torso);
+    const body = capsule(0.5, 0.8, clothes);
+    body.position.y = 0.8;
+    character.add(body);
 
-    const leftArm = capsule(0.13, 0.75, skinMaterial);
-    leftArm.position.set(-0.68, 0.7, 0);
-    leftArm.rotation.z = -0.12;
+    const leftArm = capsule(0.13, 0.85, skin);
+    leftArm.position.set(-0.7, 0.75, 0);
     character.add(leftArm);
 
-    const rightArm = capsule(0.13, 0.75, skinMaterial);
-    rightArm.position.set(0.68, 0.7, 0);
-    rightArm.rotation.z = 0.12;
+    const rightArm = capsule(0.13, 0.85, skin);
+    rightArm.position.set(0.7, 0.75, 0);
     character.add(rightArm);
 
-    const leftLeg = capsule(0.17, 0.8, skinMaterial);
-    leftLeg.position.set(-0.25, -0.55, 0);
+    const leftLeg = capsule(0.17, 0.85, skin);
+    leftLeg.position.set(-0.25, -0.45, 0);
     character.add(leftLeg);
 
-    const rightLeg = capsule(0.17, 0.8, skinMaterial);
-    rightLeg.position.set(0.25, -0.55, 0);
+    const rightLeg = capsule(0.17, 0.85, skin);
+    rightLeg.position.set(0.25, -0.45, 0);
     character.add(rightLeg);
 
-    let isPlaying = false;
-    let animationTime = 0;
+    const floor = new THREE.Mesh(
+      new THREE.CircleGeometry(2, 32),
+      new THREE.MeshStandardMaterial({ color: "#111827" })
+    );
+
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -1;
+    scene.add(floor);
+
+    let playing = false;
+    let time = 0;
 
     window.updateCharacter = function () {
       const height = Number(document.getElementById("height").value) / 100;
       const muscle = Number(document.getElementById("muscle").value) / 100;
-
-      character.scale.set(
-        muscle,
-        height,
-        muscle
-      );
+      character.scale.set(muscle, height, muscle);
     };
 
     window.updateRotation = function () {
-      const rotation = Number(
-        document.getElementById("rotation").value
-      );
-
-      character.rotation.y = THREE.MathUtils.degToRad(rotation);
-    };
-
-    window.playAnimation = function () {
-      isPlaying = true;
-      setStatus("Playing 3D preview");
+      const degrees = Number(document.getElementById("rotation").value);
+      character.rotation.y = THREE.MathUtils.degToRad(degrees);
     };
 
     window.capturePose = function () {
-      isPlaying = false;
-      setStatus("3D pose captured");
+      playing = false;
+      message.textContent = "Pose captured";
     };
 
-    window.setStatus = function (message) {
-      document.getElementById("status").textContent = message;
+    window.playAnimation = function () {
+      playing = true;
+      message.textContent = "Playing 3D animation";
     };
 
     window.saveProject = function () {
-      const project = {
-        height: document.getElementById("height").value,
-        muscle: document.getElementById("muscle").value,
-        rotation: document.getElementById("rotation").value
+      const data = {
+        height: height.value,
+        muscle: muscle.value,
+        rotation: rotation.value
       };
 
-      localStorage.setItem(
-        "real3DAnimatorProject",
-        JSON.stringify(project)
-      );
-
-      setStatus("3D project saved");
+      localStorage.setItem("animatorProject", JSON.stringify(data));
+      message.textContent = "Project saved";
     };
 
     window.loadProject = function () {
-      const saved = localStorage.getItem("real3DAnimatorProject");
+      const data = JSON.parse(
+        localStorage.getItem("animatorProject") || "null"
+      );
 
-      if (!saved) {
-        setStatus("No saved project");
+      if (!data) {
+        message.textContent = "No saved project";
         return;
       }
 
-      const project = JSON.parse(saved);
-
-      document.getElementById("height").value = project.height;
-      document.getElementById("muscle").value = project.muscle;
-      document.getElementById("rotation").value = project.rotation;
+      height.value = data.height;
+      muscle.value = data.muscle;
+      rotation.value = data.rotation;
 
       updateCharacter();
       updateRotation();
-      setStatus("3D project loaded");
+      message.textContent = "Project loaded";
     };
 
     function animate() {
       requestAnimationFrame(animate);
-
       controls.update();
 
-      if (isPlaying) {
-        animationTime += 0.08;
-
-        leftArm.rotation.z =
-          -0.12 + Math.sin(animationTime) * 0.45;
-
-        rightArm.rotation.z =
-          0.12 - Math.sin(animationTime) * 0.45;
-
-        character.position.y =
-          Math.abs(Math.sin(animationTime * 2)) * 0.08;
+      if (playing) {
+        time += 0.08;
+        leftArm.rotation.z = Math.sin(time) * 0.5;
+        rightArm.rotation.z = -Math.sin(time) * 0.5;
+        character.position.y = Math.abs(Math.sin(time * 2)) * 0.08;
       }
 
       renderer.render(scene, camera);
     }
 
     function resize() {
-      camera.aspect =
-        sceneElement.clientWidth / sceneElement.clientHeight;
-
+      camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
-
-      renderer.setSize(
-        sceneElement.clientWidth,
-        sceneElement.clientHeight
-      );
+      renderer.setSize(container.clientWidth, container.clientHeight);
     }
 
     window.addEventListener("resize", resize);
