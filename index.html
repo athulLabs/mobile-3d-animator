@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animated Studio</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 14px;
+      background: #070b16;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+    }
+
+    .app {
+      max-width: 520px;
+      margin: auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    h1, h2, p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 19px;
+    }
+
+    h2 {
+      font-size: 15px;
+      margin-bottom: 14px;
+    }
+
+    .muted {
+      margin-top: 4px;
+      color: #8f9ab5;
+      font-size: 11px;
+    }
+
+    .card {
+      margin-bottom: 14px;
+      padding: 15px;
+      border: 1px solid #29334d;
+      border-radius: 17px;
+      background: #111729;
+    }
+
+    button {
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 13px;
+      color: white;
+      background: #26314b;
+      font-size: 12px;
+    }
+
+    button.primary {
+      background: #7044d8;
+    }
+
+    .preview {
+      position: relative;
+      height: 330px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      border-radius: 16px;
+      background: radial-gradient(circle, #63708f, #202944 45%, #111729);
+    }
+
+    .floor {
+      position: absolute;
+      bottom: 35px;
+      width: 180px;
+      height: 28px;
+      border-radius: 50%;
+      background: #111827;
+      opacity: .8;
+    }
+
+    .character {
+      position: relative;
+      z-index: 2;
+      width: 110px;
+      height: 245px;
+    }
+
+    .head {
+      width: 55px;
+      height: 55px;
+      margin: auto;
+      border-radius: 50%;
+      background: #ecc1ae;
+      box-shadow: inset -8px -5px #c9958b;
+    }
+
+    .body {
+      width: 82px;
+      height: 100px;
+      margin: 8px auto 0;
+      border-radius: 42% 42% 30% 30%;
+      background: #a38bdd;
+    }
+
+    .arm, .leg {
+      position: absolute;
+      border-radius: 30px;
+      background: #ecc1ae;
+    }
+
+    .arm {
+      top: 72px;
+      width: 17px;
+      height: 92px;
+    }
+
+    .left-arm {
+      left: 2px;
+      transform: rotate(12deg);
+    }
+
+    .right-arm {
+      right: 2px;
+      transform: rotate(-12deg);
+    }
+
+    .leg {
+      top: 158px;
+      width: 20px;
+      height: 83px;
+    }
+
+    .left-leg {
+      left: 35px;
+    }
+
+    .right-leg {
+      right: 35px;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .row button {
+      flex: 1;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 6px;
+      color: #cbd5e1;
+      font-size: 12px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #8b5cf6;
+    }
+
+    .status {
+      margin-top: 12px;
+      color: #a78bfa;
+      font-size: 11px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <header>
+      <div>
+        <h1>Animated Studio</h1>
+        <p class="muted">Mobile 3D animator</p>
+      </div>
+      <button class="primary" onclick="saveProject()">Save</button>
+    </header>
+
+    <section class="card">
+      <div class="preview">
+        <div class="floor"></div>
+
+        <div class="character" id="character">
+          <div class="head"></div>
+          <div class="body"></div>
+          <div class="arm left-arm"></div>
+          <div class="arm right-arm"></div>
+          <div class="leg left-leg"></div>
+          <div class="leg right-leg"></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <button onclick="capturePose()">Capture Pose</button>
+        <button class="primary" onclick="playPreview()">Play Preview</button>
+      </div>
+
+      <p id="status" class="status">Ready</p>
+    </section>
+
+    <section class="card">
+      <h2>Animation Timeline</h2>
+      <div class="row">
+        <button onclick="setStatus('Idle animation selected')">Idle</button>
+        <button onclick="setStatus('Walk animation selected')">Walk</button>
+        <button onclick="setStatus('Wave animation selected')">Wave</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Character Workshop</h2>
+
+      <label>Height</label>
+      <input id="height" type="range" min="80" max="130" value="100"
+             oninput="updateCharacter()">
+
+      <label>Muscularity</label>
+      <input id="muscle" type="range" min="80" max="140" value="100"
+             oninput="updateCharacter()">
+
+      <label>Rotation</label>
+      <input id="rotation" type="range" min="-30" max="30" value="0"
+             oninput="updateCharacter()">
+
+      <div class="row">
+        <button onclick="saveProject()">Save Project</button>
+        <button onclick="loadProject()">Load Project</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function updateCharacter() {
+      const character = document.getElementById("character");
+      const height = document.getElementById("height").value;
+      const muscle = document.getElementById("muscle").value;
+      const rotation = document.getElementById("rotation").value;
+
+      character.style.transform =
+        `scale(${muscle / 100}, ${height / 100}) rotateY(${rotation}deg)`;
+    }
+
+    function setStatus(message) {
+      document.getElementById("status").textContent = message;
+    }
+
+    function capturePose() {
+      setStatus("Pose captured");
+    }
+
+    function playPreview() {
+      setStatus("Playing preview");
+      const character = document.getElementById("character");
+      character.animate(
+        [
+          { transform: "translateY(0) rotate(0deg)" },
+          { transform: "translateY(-18px) rotate(4deg)" },
+          { transform: "translateY(0) rotate(0deg)" }
+        ],
+        { duration: 900, iterations: 3 }
+      );
+    }
+
+    function saveProject() {
+      const project = {
+        height: document.getElementById("height").value,
+        muscle: document.getElementById("muscle").value,
+        rotation: document.getElementById("rotation").value
+      };
+
+      localStorage.setItem("animatorProject", JSON.stringify(project));
+      setStatus("Project saved");
+    }
+
+    function loadProject() {
+      const saved = localStorage.getItem("animatorProject");
+
+      if (!saved) {
+        setStatus("No saved project");
+        return;
+      }
+
+      const project = JSON.parse(saved);
+      document.getElementById("height").value = project.height;
+      document.getElementById("muscle").value = project.muscle;
+      document.getElementById("rotation").value = project.rotation;
+
+      updateCharacter();
+      setStatus("Project loaded");
+    }
+  </script>
+</body>
+  </html>
