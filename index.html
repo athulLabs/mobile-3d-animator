@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Animated Studio</title>
+  <title>Animated Studio 3D</title>
 
   <style>
     * {
@@ -12,22 +12,23 @@
 
     body {
       margin: 0;
-      padding: 14px;
       background: #070b16;
-      color: #ffffff;
+      color: white;
       font-family: Arial, sans-serif;
     }
 
     .app {
-      max-width: 520px;
+      width: 100%;
+      max-width: 600px;
       margin: auto;
+      padding: 12px;
     }
 
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
+      padding: 8px 0 14px;
     }
 
     h1, h2, p {
@@ -45,16 +46,25 @@
 
     .muted {
       margin-top: 4px;
-      color: #8f9ab5;
+      color: #94a3b8;
       font-size: 11px;
     }
 
     .card {
-      margin-bottom: 14px;
-      padding: 15px;
-      border: 1px solid #29334d;
+      margin-bottom: 13px;
+      padding: 14px;
+      border: 1px solid #2b3854;
       border-radius: 17px;
-      background: #111729;
+      background: #111827;
+    }
+
+    #scene {
+      width: 100%;
+      height: 390px;
+      overflow: hidden;
+      border-radius: 16px;
+      background: linear-gradient(#34415f, #111827);
+      touch-action: none;
     }
 
     button {
@@ -62,93 +72,12 @@
       border-radius: 9px;
       padding: 10px 13px;
       color: white;
-      background: #26314b;
+      background: #293650;
       font-size: 12px;
     }
 
     button.primary {
       background: #7044d8;
-    }
-
-    .preview {
-      position: relative;
-      height: 330px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      border-radius: 16px;
-      background: radial-gradient(circle, #63708f, #202944 45%, #111729);
-    }
-
-    .floor {
-      position: absolute;
-      bottom: 35px;
-      width: 180px;
-      height: 28px;
-      border-radius: 50%;
-      background: #111827;
-      opacity: .8;
-    }
-
-    .character {
-      position: relative;
-      z-index: 2;
-      width: 110px;
-      height: 245px;
-    }
-
-    .head {
-      width: 55px;
-      height: 55px;
-      margin: auto;
-      border-radius: 50%;
-      background: #ecc1ae;
-      box-shadow: inset -8px -5px #c9958b;
-    }
-
-    .body {
-      width: 82px;
-      height: 100px;
-      margin: 8px auto 0;
-      border-radius: 42% 42% 30% 30%;
-      background: #a38bdd;
-    }
-
-    .arm, .leg {
-      position: absolute;
-      border-radius: 30px;
-      background: #ecc1ae;
-    }
-
-    .arm {
-      top: 72px;
-      width: 17px;
-      height: 92px;
-    }
-
-    .left-arm {
-      left: 2px;
-      transform: rotate(12deg);
-    }
-
-    .right-arm {
-      right: 2px;
-      transform: rotate(-12deg);
-    }
-
-    .leg {
-      top: 158px;
-      width: 20px;
-      height: 83px;
-    }
-
-    .left-leg {
-      left: 35px;
-    }
-
-    .right-leg {
-      right: 35px;
     }
 
     .row {
@@ -163,8 +92,7 @@
 
     label {
       display: block;
-      margin-top: 15px;
-      margin-bottom: 6px;
+      margin: 15px 0 6px;
       color: #cbd5e1;
       font-size: 12px;
     }
@@ -174,7 +102,7 @@
       accent-color: #8b5cf6;
     }
 
-    .status {
+    #status {
       margin-top: 12px;
       color: #a78bfa;
       font-size: 11px;
@@ -188,39 +116,29 @@
     <header>
       <div>
         <h1>Animated Studio</h1>
-        <p class="muted">Mobile 3D animator</p>
+        <p class="muted">Real mobile 3D animator</p>
       </div>
       <button class="primary" onclick="saveProject()">Save</button>
     </header>
 
     <section class="card">
-      <div class="preview">
-        <div class="floor"></div>
-
-        <div class="character" id="character">
-          <div class="head"></div>
-          <div class="body"></div>
-          <div class="arm left-arm"></div>
-          <div class="arm right-arm"></div>
-          <div class="leg left-leg"></div>
-          <div class="leg right-leg"></div>
-        </div>
-      </div>
+      <div id="scene"></div>
 
       <div class="row">
         <button onclick="capturePose()">Capture Pose</button>
-        <button class="primary" onclick="playPreview()">Play Preview</button>
+        <button class="primary" onclick="playAnimation()">Play Preview</button>
       </div>
 
-      <p id="status" class="status">Ready</p>
+      <p id="status">Drag the character to rotate</p>
     </section>
 
     <section class="card">
       <h2>Animation Timeline</h2>
+
       <div class="row">
-        <button onclick="setStatus('Idle animation selected')">Idle</button>
-        <button onclick="setStatus('Walk animation selected')">Walk</button>
-        <button onclick="setStatus('Wave animation selected')">Wave</button>
+        <button onclick="setStatus('Idle selected')">Idle</button>
+        <button onclick="setStatus('Walk selected')">Walk</button>
+        <button onclick="setStatus('Wave selected')">Wave</button>
       </div>
     </section>
 
@@ -228,16 +146,16 @@
       <h2>Character Workshop</h2>
 
       <label>Height</label>
-      <input id="height" type="range" min="80" max="130" value="100"
+      <input id="height" type="range" min="70" max="140" value="100"
              oninput="updateCharacter()">
 
       <label>Muscularity</label>
-      <input id="muscle" type="range" min="80" max="140" value="100"
+      <input id="muscle" type="range" min="70" max="150" value="100"
              oninput="updateCharacter()">
 
-      <label>Rotation</label>
-      <input id="rotation" type="range" min="-30" max="30" value="0"
-             oninput="updateCharacter()">
+      <label>Body Rotation</label>
+      <input id="rotation" type="range" min="-180" max="180" value="0"
+             oninput="updateRotation()">
 
       <div class="row">
         <button onclick="saveProject()">Save Project</button>
@@ -246,51 +164,185 @@
     </section>
   </main>
 
-  <script>
-    function updateCharacter() {
-      const character = document.getElementById("character");
-      const height = document.getElementById("height").value;
-      const muscle = document.getElementById("muscle").value;
-      const rotation = document.getElementById("rotation").value;
+  <script type="module">
+    import * as THREE from
+      "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 
-      character.style.transform =
-        `scale(${muscle / 100}, ${height / 100}) rotateY(${rotation}deg)`;
-    }
+    import { OrbitControls } from
+      "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-    function setStatus(message) {
-      document.getElementById("status").textContent = message;
-    }
+    const sceneElement = document.getElementById("scene");
 
-    function capturePose() {
-      setStatus("Pose captured");
-    }
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color("#26324e");
 
-    function playPreview() {
-      setStatus("Playing preview");
-      const character = document.getElementById("character");
-      character.animate(
-        [
-          { transform: "translateY(0) rotate(0deg)" },
-          { transform: "translateY(-18px) rotate(4deg)" },
-          { transform: "translateY(0) rotate(0deg)" }
-        ],
-        { duration: 900, iterations: 3 }
+    const camera = new THREE.PerspectiveCamera(
+      45,
+      sceneElement.clientWidth / sceneElement.clientHeight,
+      0.1,
+      100
+    );
+
+    camera.position.set(0, 2.2, 6);
+
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true
+    });
+
+    renderer.setSize(
+      sceneElement.clientWidth,
+      sceneElement.clientHeight
+    );
+
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    sceneElement.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enablePan = false;
+    controls.enableDamping = true;
+    controls.minDistance = 3;
+    controls.maxDistance = 9;
+    controls.target.set(0, 1.2, 0);
+
+    const ambientLight = new THREE.HemisphereLight(
+      "#ffffff",
+      "#27304a",
+      2
+    );
+
+    scene.add(ambientLight);
+
+    const keyLight = new THREE.DirectionalLight("#ffffff", 3);
+    keyLight.position.set(4, 6, 5);
+    keyLight.castShadow = true;
+    scene.add(keyLight);
+
+    const floor = new THREE.Mesh(
+      new THREE.CircleGeometry(2.1, 64),
+      new THREE.MeshStandardMaterial({
+        color: "#101827",
+        roughness: 0.9
+      })
+    );
+
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -1.15;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    const character = new THREE.Group();
+    scene.add(character);
+
+    const skinMaterial = new THREE.MeshStandardMaterial({
+      color: "#e6ae99",
+      roughness: 0.75
+    });
+
+    const clothesMaterial = new THREE.MeshStandardMaterial({
+      color: "#9b82d6",
+      roughness: 0.7
+    });
+
+    function capsule(radius, length, material) {
+      const geometry = new THREE.CapsuleGeometry(
+        radius,
+        length,
+        12,
+        24
       );
+
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      return mesh;
     }
 
-    function saveProject() {
+    const head = new THREE.Mesh(
+      new THREE.SphereGeometry(0.38, 32, 32),
+      skinMaterial
+    );
+
+    head.position.y = 1.75;
+    head.castShadow = true;
+    character.add(head);
+
+    const torso = capsule(0.48, 0.75, clothesMaterial);
+    torso.position.y = 0.75;
+    character.add(torso);
+
+    const leftArm = capsule(0.13, 0.75, skinMaterial);
+    leftArm.position.set(-0.68, 0.7, 0);
+    leftArm.rotation.z = -0.12;
+    character.add(leftArm);
+
+    const rightArm = capsule(0.13, 0.75, skinMaterial);
+    rightArm.position.set(0.68, 0.7, 0);
+    rightArm.rotation.z = 0.12;
+    character.add(rightArm);
+
+    const leftLeg = capsule(0.17, 0.8, skinMaterial);
+    leftLeg.position.set(-0.25, -0.55, 0);
+    character.add(leftLeg);
+
+    const rightLeg = capsule(0.17, 0.8, skinMaterial);
+    rightLeg.position.set(0.25, -0.55, 0);
+    character.add(rightLeg);
+
+    let isPlaying = false;
+    let animationTime = 0;
+
+    window.updateCharacter = function () {
+      const height = Number(document.getElementById("height").value) / 100;
+      const muscle = Number(document.getElementById("muscle").value) / 100;
+
+      character.scale.set(
+        muscle,
+        height,
+        muscle
+      );
+    };
+
+    window.updateRotation = function () {
+      const rotation = Number(
+        document.getElementById("rotation").value
+      );
+
+      character.rotation.y = THREE.MathUtils.degToRad(rotation);
+    };
+
+    window.playAnimation = function () {
+      isPlaying = true;
+      setStatus("Playing 3D preview");
+    };
+
+    window.capturePose = function () {
+      isPlaying = false;
+      setStatus("3D pose captured");
+    };
+
+    window.setStatus = function (message) {
+      document.getElementById("status").textContent = message;
+    };
+
+    window.saveProject = function () {
       const project = {
         height: document.getElementById("height").value,
         muscle: document.getElementById("muscle").value,
         rotation: document.getElementById("rotation").value
       };
 
-      localStorage.setItem("animatorProject", JSON.stringify(project));
-      setStatus("Project saved");
-    }
+      localStorage.setItem(
+        "real3DAnimatorProject",
+        JSON.stringify(project)
+      );
 
-    function loadProject() {
-      const saved = localStorage.getItem("animatorProject");
+      setStatus("3D project saved");
+    };
+
+    window.loadProject = function () {
+      const saved = localStorage.getItem("real3DAnimatorProject");
 
       if (!saved) {
         setStatus("No saved project");
@@ -298,13 +350,53 @@
       }
 
       const project = JSON.parse(saved);
+
       document.getElementById("height").value = project.height;
       document.getElementById("muscle").value = project.muscle;
       document.getElementById("rotation").value = project.rotation;
 
       updateCharacter();
-      setStatus("Project loaded");
+      updateRotation();
+      setStatus("3D project loaded");
+    };
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      controls.update();
+
+      if (isPlaying) {
+        animationTime += 0.08;
+
+        leftArm.rotation.z =
+          -0.12 + Math.sin(animationTime) * 0.45;
+
+        rightArm.rotation.z =
+          0.12 - Math.sin(animationTime) * 0.45;
+
+        character.position.y =
+          Math.abs(Math.sin(animationTime * 2)) * 0.08;
+      }
+
+      renderer.render(scene, camera);
     }
+
+    function resize() {
+      camera.aspect =
+        sceneElement.clientWidth / sceneElement.clientHeight;
+
+      camera.updateProjectionMatrix();
+
+      renderer.setSize(
+        sceneElement.clientWidth,
+        sceneElement.clientHeight
+      );
+    }
+
+    window.addEventListener("resize", resize);
+
+    updateCharacter();
+    animate();
   </script>
 </body>
-  </html>
+</html>
