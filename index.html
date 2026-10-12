@@ -1,295 +1,140 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>3D Animator</title>
-
-  <style>
-    body {
-      margin: 0;
-      padding: 12px;
-      background: #080b16;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
-
-    .app {
-      max-width: 600px;
-      margin: auto;
-    }
-
-    .card {
-      margin-bottom: 12px;
-      padding: 14px;
-      border: 1px solid #334155;
-      border-radius: 16px;
-      background: #111827;
-    }
-
-    h1 {
-      font-size: 19px;
-      margin: 0;
-    }
-
-    h2 {
-      font-size: 15px;
-    }
-
-    p {
-      color: #a5b4fc;
-      font-size: 12px;
-    }
-
-    #scene {
-      height: 380px;
-      overflow: hidden;
-      border-radius: 14px;
-      background: #263451;
-      touch-action: none;
-    }
-
-    button {
-      margin: 4px 2px;
-      padding: 11px 14px;
-      border: 0;
-      border-radius: 9px;
-      color: white;
-      background: #334155;
-    }
-
-    button.primary {
-      background: #7044d8;
-    }
-
-    input {
-      width: 100%;
-      accent-color: #8b5cf6;
-    }
-
-    label {
-      display: block;
-      margin-top: 14px;
-      color: #cbd5e1;
-      font-size: 12px;
-    }
-
-    #message {
-      text-align: center;
-      color: #a78bfa;
-    }
-  </style>
-
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-    }
-  }
-  </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080a10">
+<title>AnimAI Studio 3.0 — Cinematic World Builder</title>
+<style>
+:root{--bg:#080a10;--panel:#10141e;--panel2:#191f2e;--border:#2b3449;--text:#f1f4ff;--muted:#929db5;--accent:#a18bff;--cyan:#5bdcff;--green:#70e7b5;--red:#ff718c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;touch-action:manipulation}
+.app{max-width:1500px;margin:auto;padding:10px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 2px 15px;border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#b49aff,#55e4ff);color:#080a10;display:grid;place-items:center;font-weight:900;font-size:23px}
+h1{font-size:17px;margin:0}
+.brand p{font-size:10px;color:var(--muted);margin:4px 0 0}
+.btn,.tab{border:1px solid var(--border);background:var(--panel2);color:var(--text);padding:10px 12px;border-radius:10px;font-size:11px;font-weight:700}
+.btn.primary{background:linear-gradient(135deg,#b49aff,#55e4ff);color:#080a10;border:0}
+.btn.small{padding:8px 10px;font-size:10px}
+.btn.active,.tab.active{border-color:var(--accent);background:#9b89ff25}
+.wide{width:100%}
+.tabs{display:flex;gap:7px;padding:13px 0;overflow-x:auto}
+.tab{white-space:nowrap;flex-shrink:0}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:12px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px;min-width:0}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:13px;border-bottom:1px solid var(--border)}
+.panel-head h2{font-size:12px;margin:0}
+.panel-head span{font-size:10px;color:var(--muted)}
+.canvas-area{position:relative;background:#080b13}
+#drawCanvas{display:block;width:100%;height:320px;touch-action:none}
+#threeHost{display:none;width:100%;height:360px;position:relative;overflow:hidden}
+#threeHost canvas{display:block;width:100%;height:100%;touch-action:none}
+.hint{position:absolute;bottom:8px;left:8px;background:#080a10d9;color:var(--muted);font-size:9px;padding:6px 8px;border-radius:6px;pointer-events:none;z-index:2}
+.toolbar{display:flex;gap:6px;flex-wrap:wrap;padding:11px;border-top:1px solid var(--border)}
+input[type=color]{width:36px;height:36px;padding:2px;border:1px solid var(--border);border-radius:7px;background:var(--panel)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=text],input[type=number],select,textarea{width:100%;min-width:0;background:#090c14;color:var(--text);border:1px solid var(--border);border-radius:9px;padding:10px;font-size:12px;outline:none}
+textarea{min-height:92px;resize:vertical;line-height:1.5}
+.field{margin-bottom:11px;min-width:0}
+.field label{display:block;font-size:10px;color:var(--muted);margin-bottom:6px}
+.pad{padding:12px}
+.note{font-size:10px;color:var(--muted);line-height:1.6}
+.row{display:flex;flex-wrap:wrap;gap:8px;width:100%}
+.row>*{flex:1 1 85px;min-width:0}
+.timeline-body{padding:12px}
+.frame-list{display:flex;gap:7px;overflow-x:auto;padding:3px 0 8px}
+.frame{flex:0 0 68px;height:60px;border:1px solid var(--border);background:#080b13;color:var(--muted);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;font-size:10px}
+.frame.active{border:2px solid var(--accent);color:white}
+.frame strong{font-size:16px}
+.project-item{display:flex;align-items:center;justify-content:space-between;gap:7px;border:1px solid var(--border);border-radius:8px;padding:8px;margin-bottom:7px;font-size:10px}
+.hidden{display:none!important}
+.toast{position:fixed;z-index:50;bottom:15px;left:50%;transform:translateX(-50%);max-width:90%;background:#222b40;border:1px solid var(--border);padding:12px 15px;border-radius:10px;font-size:12px;text-align:center}
+footer{text-align:center;padding:18px;color:#707b93;font-size:10px}
+.section-title{font-size:10px;color:var(--cyan);font-weight:800;letter-spacing:.08em;margin:15px 0 9px}
+@media(max-width:780px){.app{padding:8px}.layout{grid-template-columns:minmax(0,1fr)}#drawCanvas{height:320px}#threeHost{height:360px}.brand p{max-width:180px}.panel-head{padding:11px}}
+@media(min-width:781px){#drawCanvas{height:480px}#threeHost{height:560px}}
+</style>
 </head>
-
 <body>
-  <main class="app">
-    <section class="card">
-      <h1>Animated Studio</h1>
-      <p>Real 3D mobile animator</p>
-    </section>
+<div class="app">
+<header>
+<div class="brand"><div class="logo">A</div><div><h1>AnimAI Studio 3.0</h1><p>2D animation · cinematic 3D worlds</p></div></div>
+<button class="btn small" id="saveBtn">Save project</button>
+</header>
 
-    <section class="card">
-      <div id="scene"></div>
-      <button onclick="capturePose()">Capture Pose</button>
-      <button class="primary" onclick="playAnimation()">Play Preview</button>
-      <p id="message">Drag the model to rotate</p>
-    </section>
+<nav class="tabs">
+<button class="tab active" data-mode="2d">🎨 2D Studio</button>
+<button class="tab" data-mode="3d">🌌 3D World Builder</button>
+<button class="tab" data-mode="ai">🤖 AI Studio</button>
+</nav>
 
-    <section class="card">
-      <h2>Character Workshop</h2>
+<div class="layout"><main>
+<section class="panel">
+<div class="panel-head"><div><h2 id="workTitle">2D Animation Canvas</h2><span id="workSub">Draw frame by frame</span></div><button class="btn small" id="clearBtn">Clear</button></div>
+<div class="canvas-area"><canvas id="drawCanvas"></canvas><div id="threeHost"></div><div class="hint" id="canvasHint">Touch to draw</div></div>
+<div class="toolbar" id="tools2d">
+<input type="color" id="brushColor" value="#a394ff">
+<input type="range" id="brushSize" min="1" max="30" value="5">
+<button class="btn small active" id="penBtn">Pen</button><button class="btn small" id="eraserBtn">Eraser</button><button class="btn small" id="undoBtn">Undo</button><button class="btn small" id="addFrameBtn">+ Frame</button><button class="btn small" id="duplicateFrameBtn">Duplicate</button><button class="btn small" id="onionBtn">Onion skin</button><button class="btn small" id="shapeBtn">Add circle</button><button class="btn small" id="pngBtn">Export PNG</button>
+</div>
+<div class="toolbar hidden" id="tools3d">
+<button class="btn small" data-shape="box">Cube</button><button class="btn small" data-shape="sphere">Sphere</button><button class="btn small" data-shape="cone">Cone</button><button class="btn small" data-shape="torus">Torus knot</button><button class="btn small" data-shape="cylinder">Cylinder</button><button class="btn small" data-shape="crystal">Crystal</button><button class="btn small" data-shape="tree">Tree</button><button class="btn small" data-shape="mountain">Mountain</button><button class="btn small" id="autoRotateBtn">Auto rotate: OFF</button><button class="btn small" id="resetViewBtn">Reset camera</button><button class="btn small" id="importModelBtn">Import GLB</button><input type="file" id="modelInput" accept=".glb" class="hidden">
+</div>
+</section>
 
-      <label>Height</label>
-      <input id="height" type="range" min="70" max="140" value="100"
-             oninput="updateCharacter()">
+<section class="panel hidden" id="worldPanel">
+<div class="panel-head"><h2>🌍 World & Atmosphere</h2><span>Cinematic environments</span></div>
+<div class="pad">
+<div class="field"><label>Environment preset</label>
+<select id="environment">
+<option value="cosmic">Cosmic Dream</option>
+<option value="sunset">Alien Sunset</option>
+<option value="forest">Mystic Forest</option>
+<option value="mountains">Moon Mountains</option>
+<option value="temple">Ancient Temple</option>
+<option value="void">Minimal Dark Studio</option>
+</select></div>
+<div class="row"><div class="field"><label>World background</label><input type="color" id="worldColor" value="#090b24"></div><div class="field"><label>Fog color</label><input type="color" id="fogColor" value="#17102d"></div></div>
+<div class="field"><label>Fog density <span id="fogLabel">0.012</span></label><input type="range" id="fogDensity" min="0" max=".06" step=".001" value=".012"></div>
+<div class="field"><label>Stars <span id="starLabel">1200</span></label><input type="range" id="starCount" min="0" max="3000" step="100" value="1200"></div>
+<div class="field"><label>Floating particles <span id="particleLabel">250</span></label><input type="range" id="particleCount" min="0" max="1000" step="50" value="250"></div>
+<div class="field"><label>Ambient light <span id="lightLabel">1.2</span></label><input type="range" id="lightLevel" min="0" max="3" step=".1" value="1.2"></div>
+<div class="field"><label>Ground</label><select id="groundMode"><option value="grid">Editor grid</option><option value="floor">Floor</option><option value="none">No ground</option></select></div>
+<div class="row"><button class="btn primary" id="applyWorldBtn">Apply world</button><button class="btn" id="addTerrainBtn">Add terrain</button></div>
+<p class="note">Presets create procedural scenery, atmospheric color, lighting, planets, and particles.</p>
+</div></section>
 
-      <label>Muscularity</label>
-      <input id="muscle" type="range" min="70" max="140" value="100"
-             oninput="updateCharacter()">
+<section class="panel hidden" id="transformPanel">
+<div class="panel-head"><h2>🎮 Object Properties</h2><span id="selectedLabel">No object</span></div><div class="pad">
+<div class="field"><label>Selected object</label><select id="objectSelect"></select></div>
+<div class="row"><div class="field"><label>Position X</label><input id="posX" type="number" step=".1" value="0"></div><div class="field"><label>Position Y</label><input id="posY" type="number" step=".1" value="0"></div><div class="field"><label>Position Z</label><input id="posZ" type="number" step=".1" value="0"></div></div>
+<div class="row"><div class="field"><label>Rotation Y °</label><input id="rotY" type="number" step="5" value="0"></div><div class="field"><label>Uniform scale</label><input id="objScale" type="number" min=".1" max="20" step=".1" value="1"></div></div>
+<div class="section-title">MATERIAL</div>
+<div class="row"><div class="field"><label>Object color</label><input type="color" id="objColor" value="#c89aff"></div><div class="field"><label>Glow color</label><input type="color" id="glowColor" value="#8c5cff"></div></div>
+<div class="field"><label>Glow strength</label><input type="range" id="glowStrength" min="0" max="2" step=".1" value="0"></div>
+<div class="field"><label>Metalness</label><input type="range" id="metalness" min="0" max="1" step=".1" value=".3"></div>
+<div class="field"><label>Roughness</label><input type="range" id="roughness" min="0" max="1" step=".1" value=".3"></div>
+<button class="btn primary wide" id="applyTransformBtn">Apply properties</button>
+</div></section>
 
-      <label>Rotation</label>
-      <input id="rotation" type="range" min="-180" max="180" value="0"
-             oninput="updateRotation()">
+<section class="panel hidden" id="keyPanel">
+<div class="panel-head"><h2>🎞️ 3D Keyframes</h2><span id="keyStatus">0 keyframes</span></div><div class="pad">
+<div class="field"><label>Animation time: <span id="timeLabel">0.0 seconds</span></label><input type="range" id="timeSlider" min="0" max="10" step=".1" value="0"></div>
+<div class="row"><button class="btn primary" id="recordKeyBtn">Record keyframe</button><button class="btn" id="play3dBtn">▶ Play</button><button class="btn" id="stop3dBtn">■ Stop</button></div><div id="keyList" class="note">No keyframes recorded.</div>
+</div></section>
 
-      <button onclick="saveProject()">Save Project</button>
-      <button onclick="loadProject()">Load Project</button>
-    </section>
-  </main>
-
-  <script type="module">
-    import * as THREE from "three";
-    import { OrbitControls } from
-      "three/addons/controls/OrbitControls.js";
-
-    const container = document.getElementById("scene");
-    const message = document.getElementById("message");
-
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color("#263451");
-
-    const camera = new THREE.PerspectiveCamera(
-      45,
-      container.clientWidth / container.clientHeight,
-      0.1,
-      100
-    );
-
-    camera.position.set(0, 1.5, 5);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    container.appendChild(renderer.domElement);
-
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enablePan = false;
-    controls.enableDamping = true;
-    controls.target.set(0, 1, 0);
-
-    scene.add(new THREE.HemisphereLight("#ffffff", "#263451", 2));
-
-    const light = new THREE.DirectionalLight("#ffffff", 3);
-    light.position.set(4, 6, 5);
-    light.castShadow = true;
-    scene.add(light);
-
-    const character = new THREE.Group();
-    scene.add(character);
-
-    const skin = new THREE.MeshStandardMaterial({ color: "#e6ad98" });
-    const clothes = new THREE.MeshStandardMaterial({ color: "#9b82d6" });
-
-    function capsule(radius, length, material) {
-      const mesh = new THREE.Mesh(
-        new THREE.CapsuleGeometry(radius, length, 8, 20),
-        material
-      );
-      mesh.castShadow = true;
-      return mesh;
-    }
-
-    const head = new THREE.Mesh(
-      new THREE.SphereGeometry(0.38, 24, 24),
-      skin
-    );
-    head.position.y = 1.8;
-    character.add(head);
-
-    const body = capsule(0.5, 0.8, clothes);
-    body.position.y = 0.8;
-    character.add(body);
-
-    const leftArm = capsule(0.13, 0.85, skin);
-    leftArm.position.set(-0.7, 0.75, 0);
-    character.add(leftArm);
-
-    const rightArm = capsule(0.13, 0.85, skin);
-    rightArm.position.set(0.7, 0.75, 0);
-    character.add(rightArm);
-
-    const leftLeg = capsule(0.17, 0.85, skin);
-    leftLeg.position.set(-0.25, -0.45, 0);
-    character.add(leftLeg);
-
-    const rightLeg = capsule(0.17, 0.85, skin);
-    rightLeg.position.set(0.25, -0.45, 0);
-    character.add(rightLeg);
-
-    const floor = new THREE.Mesh(
-      new THREE.CircleGeometry(2, 32),
-      new THREE.MeshStandardMaterial({ color: "#111827" })
-    );
-
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.y = -1;
-    scene.add(floor);
-
-    let playing = false;
-    let time = 0;
-
-    window.updateCharacter = function () {
-      const height = Number(document.getElementById("height").value) / 100;
-      const muscle = Number(document.getElementById("muscle").value) / 100;
-      character.scale.set(muscle, height, muscle);
-    };
-
-    window.updateRotation = function () {
-      const degrees = Number(document.getElementById("rotation").value);
-      character.rotation.y = THREE.MathUtils.degToRad(degrees);
-    };
-
-    window.capturePose = function () {
-      playing = false;
-      message.textContent = "Pose captured";
-    };
-
-    window.playAnimation = function () {
-      playing = true;
-      message.textContent = "Playing 3D animation";
-    };
-
-    window.saveProject = function () {
-      const data = {
-        height: height.value,
-        muscle: muscle.value,
-        rotation: rotation.value
-      };
-
-      localStorage.setItem("animatorProject", JSON.stringify(data));
-      message.textContent = "Project saved";
-    };
-
-    window.loadProject = function () {
-      const data = JSON.parse(
-        localStorage.getItem("animatorProject") || "null"
-      );
-
-      if (!data) {
-        message.textContent = "No saved project";
-        return;
-      }
-
-      height.value = data.height;
-      muscle.value = data.muscle;
-      rotation.value = data.rotation;
-
-      updateCharacter();
-      updateRotation();
-      message.textContent = "Project loaded";
-    };
-
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-
-      if (playing) {
-        time += 0.08;
-        leftArm.rotation.z = Math.sin(time) * 0.5;
-        rightArm.rotation.z = -Math.sin(time) * 0.5;
-        character.position.y = Math.abs(Math.sin(time * 2)) * 0.08;
-      }
-
-      renderer.render(scene, camera);
-    }
-
-    function resize() {
-      camera.aspect = container.clientWidth / container.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(container.clientWidth, container.clientHeight);
-    }
-
-    window.addEventListener("resize", resize);
-
-    updateCharacter();
-    animate();
-  </script>
-</body>
-</html>
+<section class="panel" id="timeline2d">
+<div class="panel-head"><h2>🎞️ 2D Timeline</h2><span id="frameCount">1 frame</span></div>
+<div class="timeline-body"><div class="row"><button class="btn primary" id="play2dBtn">▶ Play</button><button class="btn" id="stop2dBtn">■ Stop</button><button class="btn" id="deleteFrameBtn">Delete frame</button></div><div class="field"><label>FPS: <span id="fpsLabel">8</span></label><input type="range" id="fps" min="1" max="24" value="8"></div><div class="frame-list" id="frameList"></div></div>
+</section>
+</main>
+<aside>
+<section class="panel hidden" id="aiPanel"><div class="panel-head"><h2>🤖 AI Scene Planner</h2></div><div class="pad"><div class="field"><label>Describe your scene</label><textarea id="prompt">A glowing purple crystal floats in a cosmic world.</textarea></div><div class="field"><label>Visual style</label><select id="style"><option>Cinematic 3D</option><option>Fantasy</option><option>Anime</option></select></div><div class="field"><label>Duration</label><select id="duration"><option value="3">3 seconds</option><option value="5" selected>5 seconds</option><option value="10">10 seconds</option></select></div><button class="btn primary wide" id="makePlanBtn">Create scene plan</button><div class="field"><label>Plan output</label><textarea id="planOutput" readonly></textarea></div></div></section>
+<section class="panel"><div class="panel-head"><h2>⚙️ Project Settings</h2></div><div class="pad"><div class="field"><label>Project name</label><input id="projectName" type="text" value="My Animation"></div><div class="field"><label>2D background</label><input type="color" id="bgColor" value="#080b12"></div><div class="field"><label>Canvas format</label><select id="ratio"><option value="landscape">Landscape 16:9</option><option value="portrait">Portrait 9:16</option><option value="square">Square 1:1</option></select></div></div></section>
+</aside></div>
+<footer>AnimAI Studio 3.0 · Cinematic World Builder</footer></div>
+<div class="toast hidden" id="toast"></div>
